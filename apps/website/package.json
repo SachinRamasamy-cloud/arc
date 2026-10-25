@@ -1,0 +1,25 @@
+{
+  "name": "@arc/web",
+  "version": "0.3.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@arc/ui": "0.3.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "next": "^16.2.11",
+    "motion": "^12.34.0",
+    "lucide-react": "^0.468.0",
+    "three": "^0.183.0",
+    "@react-three/fiber": "^9.5.0",
+    "geist": "^1.5.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.18",
+    "@tailwindcss/postcss": "^4.1.18"
+  }
+}

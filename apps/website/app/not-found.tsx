@@ -1,0 +1,3 @@
+import Link from 'next/link';
+import {ArrowLeft,ArrowUpRight} from 'lucide-react';
+export default function NotFound(){return <main id="content" className="not-found site-container"><span className="error-orbit" aria-hidden="true">404</span><p className="eyebrow">A CONNECTION WE COULDN’T MAKE.</p><h1>This endpoint leads nowhere.</h1><p>The page may have moved, or the address may be incomplete.</p><div className="hero-cta"><Link href="/" className="button button-primary"><ArrowLeft size={14}/>Back home</Link><Link href="/docs/" className="button button-secondary">Explore the docs <ArrowUpRight size={14}/></Link></div></main>}
