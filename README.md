@@ -1,12 +1,17 @@
 # Arc
 
 Arc is a modular API platform being published in focused development increments.
-This first milestone introduces the native processing core and the repository
-conventions used by subsequent components.
+The published milestones introduce the native processing core and the backend
+foundation used by subsequent components.
 
-## Current milestone
+## Published milestones
 
-The C++20 engine provides:
+Milestone 2 adds validated configuration, database migrations, password and token
+primitives, identity/session models, tenant-access policies, and a health-only
+FastAPI application. See [backend foundation setup](docs/FOUNDATION.md) for
+installation, migration, startup, and test commands.
+
+Milestone 1 provides the native C++20 processing engine:
 
 - Validation of JSON records and required fields.
 - Record normalization, including field mapping, trimming, and ASCII lowercasing.
@@ -14,11 +19,31 @@ The C++20 engine provides:
 - Bounded input processing and consistent invalid-input responses.
 - A reusable static library, a command-line worker, and CTest regression checks.
 
-The backend services, web applications, billing adapters, and deployment
-configuration will be introduced in later increments. This checkout currently
-builds the native engine independently.
+Customer API routes and workers, web applications, billing adapters, and
+deployment configuration will be introduced in later increments. The database
+baseline includes model definitions for later domains so the existing migration
+chain remains consistent; it does not expose those features as APIs.
 
-## Build and test
+## Run the backend foundation
+
+Use Python 3.12 or later and an activated virtual environment:
+
+```bash
+python -m pip install -e './backend[test]'
+python scripts/bootstrap.py
+arc-foundation migrate
+python -m uvicorn entrypoints.foundation_api.main:create_app --factory --host 127.0.0.1 --port 8000
+```
+
+Readiness is available at `http://127.0.0.1:8000/health/ready`. The bootstrap
+command creates a local `.env` only when one does not already exist. To run the
+isolated tests:
+
+```bash
+python -m pytest -c backend/pyproject.toml backend/foundation_tests -q
+```
+
+## Build and test the native engine
 
 The current CMake configuration targets Linux with GCC. Install CMake 3.20 or
 later, a C++20 compiler, Make, and Boost.JSON development headers. For example,
@@ -50,6 +75,12 @@ printf '%s\n' '{"operation":"normalize","data":[{"email":" ADA@EXAMPLE.TEST "}],
 ## Source layout
 
 ```text
+backend/
+  foundation/              Configuration, database, cryptography and errors
+  database/                Schema registry and frozen migration history
+  modules/                 Domain models and authorization policies
+  entrypoints/             Foundation migration CLI and health API
+  foundation_tests/        Independent migration, security and access tests
 native/
   include/arc/             Public native interfaces
   engines/validation/      JSON record and CSV validation
@@ -57,6 +88,7 @@ native/
   worker/                  Command-line entry point
   tests/                   Native regression checks
 docs/
+  FOUNDATION.md            Backend setup and milestone boundaries
   ROADMAP.md               Planned delivery increments
 ```
 

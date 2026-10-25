@@ -14,8 +14,11 @@ available in this repository or set artificial completion dates.
 | 6. Billing and integrations | Metering, credit ledger, Stripe test flows and managed PostgreSQL configuration | Billing regressions and provider integration checks |
 | 7. Local operations and release checks | Compose stack, startup tooling, end-to-end checks and deployment guidance | Full-stack smoke checks and documented release limitations |
 
-The initial publication contains increment 1. Later pushes should update this
-document and the root README to describe what that checkout can actually run.
+The current publication contains increments 1 and 2. The backend foundation
+includes the schema baseline, identity/session models and authorization policies,
+plus a health-only API; customer signup/login HTTP routes arrive with increment 3.
+Later pushes should update this document and the root README to describe what
+that checkout can actually run.
 
 Each commit should have a descriptive message and cover one coherent change.
 Publish history uses the actual commit dates. Credentials, local databases,
