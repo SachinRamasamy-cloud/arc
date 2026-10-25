@@ -21,6 +21,11 @@ static_resources:
                       routes:
                         - match: {safe_regex: {regex: "/v1/jobs/[^/]+/events"}}
                           route: {cluster: streams, timeout: 0s, idle_timeout: 30s}
+                        # Public developer reference; staff routes are never exposed.
+                        - match: {path: /docs}
+                          route: {cluster: data, timeout: 15s}
+                        - match: {path: /docs/}
+                          route: {cluster: data, timeout: 15s}
                         - match: {prefix: /v1/}
                           route: {cluster: data, timeout: 30s}
                         - match: {prefix: /api/public/}

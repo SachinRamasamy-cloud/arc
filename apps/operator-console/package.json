@@ -1,6 +1,6 @@
 {
   "name": "@arc/operator",
-  "version": "0.3.0",
+  "version": "0.3.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,8 +10,8 @@
     "preview": "vite preview --host 127.0.0.1 --port 5174"
   },
   "dependencies": {
-    "@arc/ui": "0.3.0",
-    "@arc/client": "0.3.0",
+    "@arc/ui": "0.3.3",
+    "@arc/client": "0.3.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "@tanstack/react-query": "^5.90.21",

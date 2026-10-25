@@ -63,10 +63,14 @@ def overview(wid:str,request:Request,environment:str='test',db=Depends(db_sessio
 
 @router.get('/workspaces/{wid}/members')
 def members(wid:str,request:Request,db=Depends(db_session)):
-    workspace_access(db,wid,actor(request,db),'team')
+    workspace,member=workspace_access(db,wid,actor(request,db),'read')
+    can_manage=member.role in ('owner','admin')
     rows=db.execute(select(Membership,User).join(User,Membership.user_id==User.id).where(Membership.workspace_id==wid)).all()
-    invites=list(db.scalars(select(Token).where(Token.purpose=='invite',Token.consumed.is_(False),Token.expires_at>now())))
-    return {'items':[{'id':m.id,'user_id':u.id,'email':u.email,'name':u.name,'role':m.role} for m,u in rows], 'invites':[{'id':t.id[:12],'email':t.payload['email'],'role':t.payload['role'],'expires_at':t.expires_at} for t in invites if t.payload.get('workspace_id')==wid]}
+    invites=list(db.scalars(select(Token).where(
+        Token.purpose=='invite',Token.consumed.is_(False),Token.expires_at>now(),
+        Token.payload['workspace_id'].as_string()==wid
+    ).order_by(Token.expires_at).limit(100))) if can_manage else []
+    return {'items':[{'id':m.id,'user_id':u.id,'email':u.email,'name':u.name,'role':m.role} for m,u in rows], 'can_manage':can_manage, 'invites':[{'id':t.id[:12],'email':t.payload['email'],'role':t.payload['role'],'expires_at':t.expires_at} for t in invites if t.payload.get('workspace_id')==wid]}
 
 
 @router.post('/workspaces/{wid}/members/invite',status_code=202)

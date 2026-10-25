@@ -7,7 +7,18 @@ export const queryClient=new QueryClient({defaultOptions:{queries:{staleTime:15_
 export type Scope={wid:string;pid:string;environment:'test'|'live';role:string;workspace:any;projects:any[];user:any};
 export const ScopeContext=createContext<Scope|null>(null);
 export const useScope=()=>{const value=useContext(ScopeContext);if(!value)throw new Error('Scope not available');return value;};
-export function useApi(key:unknown[],path:string,enabled=true,interval:number|false=false){return useQuery({queryKey:key,queryFn:()=>api.request(path),enabled,refetchInterval:interval});}
+export function useApi(key:unknown[],path:string,enabled=true,interval:number|false=false){
+ return useQuery({
+  queryKey:key,
+  // A broken connection must become a recoverable error, never an infinite spinner.
+  queryFn:({signal})=>{
+   const timeout=typeof AbortSignal.timeout==='function'?AbortSignal.timeout(12_000):undefined;
+   const bounded=timeout&&typeof AbortSignal.any==='function'?AbortSignal.any([signal,timeout]):signal;
+   return api.request(path,{signal:bounded});
+  },
+  enabled,refetchInterval:interval,
+ });
+}
 export function useAction(path:string|((body:any)=>string),method='POST',message='Changes saved.',onSuccess?:(data:any)=>void){
  const cache=useQueryClient();const toast=useToast();
  return useMutation({mutationFn:({body,headers}:{body?:any;headers?:HeadersInit}={})=>api.request(typeof path==='function'?path(body):path,{method,json:body,headers}),onSuccess:(data)=>{void cache.invalidateQueries();if(message)toast(message);onSuccess?.(data);}});

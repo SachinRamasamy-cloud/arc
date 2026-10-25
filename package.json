@@ -1,6 +1,6 @@
 {
   "name": "arc-platform",
-  "version": "0.3.0",
+  "version": "0.3.3",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -15,7 +15,7 @@
     "dev:operator": "npm run dev -w @arc/operator",
     "build": "npm run build -w @arc/web && npm run build -w @arc/portal && npm run build -w @arc/operator",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "node scripts/test_frontend_logic.cjs && node scripts/test_billing_uploads.cjs",
+    "test": "node scripts/test_frontend_logic.cjs && node scripts/test_billing_uploads.cjs && node --experimental-strip-types --test apps/customer-portal/modules/visual-studio/lib/graph.test.mjs",
     "test:e2e": "playwright test",
     "check:release": "python scripts/release_check.py",
     "check:source": "node scripts/check_frontend.cjs",

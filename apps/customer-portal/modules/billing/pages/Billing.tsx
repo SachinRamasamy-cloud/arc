@@ -53,12 +53,14 @@ export function Billing(){
      <div className="key-value"><span>Included each paid period</span><strong>{plan?credits(plan.included_milli):'—'} credits</strong></div>
      <div className="key-value"><span>{d.subscription.cancel_at_period_end?'Access ends':'Next renewal'}</span><strong>{dateTime(d.subscription.period_end)}</strong></div>
      <Button disabled={!d.subscription_checkout_available} busy={checkout.isPending} onClick={()=>checkout.mutate('subscription')}>Start subscription</Button>
+     {!d.subscription_checkout_available&&<p className="small muted">Subscriptions can be activated when live pricing, payment setup and your workspace's billing eligibility are ready. Test services remain available.</p>}
      <p className="small muted">Renewal follows your actual subscription dates. Usage reports use calendar months in UTC.</p>
     </div></Panel>
     <Panel title="Prepaid credits"><div className="panel-body stack">
      <strong>{credits(d.prices.credit_pack.credits_milli)} credits · {moneyMinor(d.prices.credit_pack.amount_minor,d.prices.currency)}</strong>
      <p>Applied only after included allowance. Spending these credits will not create a second Stripe charge.</p>
      <Button disabled={!d.checkout_available} busy={checkout.isPending} onClick={()=>checkout.mutate('credits')}><Plus size={14}/>Buy credits</Button>
+     {!d.checkout_available&&<p className="small muted">Credit purchases are not enabled for this environment yet. You can continue testing with sandbox credits.</p>}
      <p className="small muted">A purchase is activated only after verified payment. Taxes, where configured, appear at Checkout.</p>
     </div></Panel>
    </div>}

@@ -26,6 +26,7 @@ from modules.processing_capabilities.interfaces.public_router import router as d
 from modules.support.interfaces.public_router import router as contact_router
 from modules.payments.interfaces.stripe_webhook_router import router as stripe_webhook_router
 from entrypoints.public_data_api.openapi_router import router as openapi_router
+from entrypoints.public_data_api.docs_router import router as docs_router
 from modules.files.interfaces.local_storage_router import router as local_storage_router
 from modules.uploads.interfaces.local_multipart_router import router as local_multipart_router
 log=logging.getLogger('arc.requests')
@@ -102,7 +103,7 @@ def create_app(settings=None,database=None,surface='all'):
     settings=settings or Settings()
     if settings.env=='production' and surface=='all': raise ValueError('Deploy distinct console, data and operator ASGI factories in production.')
     database=database or Database(settings.database_url)
-    app=FastAPI(title='Arc '+surface,version='0.3.0',docs_url=None,redoc_url=None,openapi_url=None)
+    app=FastAPI(title='Arc '+surface,version='0.3.3',docs_url=None,redoc_url=None,openapi_url=None)
     app.state.settings=settings;app.state.database=database;app.state.limiter=Limiter(settings)
     app.state.stream_gate=StreamGate(app.state.limiter);app.state.store=ObjectStore(settings);app.state.stripe=StripeGateway(settings)
     install_handlers(app)
@@ -128,6 +129,7 @@ def create_app(settings=None,database=None,surface='all'):
         app.include_router(demo_router)
         app.include_router(contact_router)
         app.include_router(openapi_router)
+        app.include_router(docs_router)
         app.include_router(stripe_webhook_router)
     if surface in ('all','data'):
         app.include_router(data_events_router)
