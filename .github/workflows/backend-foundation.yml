@@ -1,4 +1,4 @@
-name: Backend foundation
+name: Backend checks
 
 on:
   push:
@@ -18,7 +18,9 @@ jobs:
           python-version: '3.13'
       - name: Install backend and test dependencies
         run: python -m pip install -e './backend[test]'
-      - name: Validate migrations, security and tenant boundaries
-        run: python -m pytest -c backend/pyproject.toml backend/foundation_tests -q
+      - name: Validate foundation and customer identity
+        run: python -m pytest -c backend/pyproject.toml backend/foundation_tests backend/identity_tests -q
       - name: Check installed migration CLI
         run: arc-foundation --help
+      - name: Check installed identity CLI
+        run: arc-identity --help

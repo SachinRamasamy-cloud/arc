@@ -11,10 +11,11 @@ test = ["pytest>=9,<10", "pytest-cov>=6,<8"]
 [project.scripts]
 arc = "entrypoints.foundation_cli:platform_main"
 arc-foundation = "entrypoints.foundation_cli:main"
+arc-identity = "entrypoints.identity_cli:main"
 [tool.setuptools.packages.find]
 where = ["src", "."]
 include = ["arc*", "modules*", "foundation*", "entrypoints*", "database*"]
 [tool.pytest.ini_options]
 pythonpath = ["src", "."]
-testpaths = ["foundation_tests"]
+testpaths = ["foundation_tests", "identity_tests"]
 addopts = "-ra"

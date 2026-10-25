@@ -1,10 +1,15 @@
 # Arc
 
 Arc is a modular API platform being published in focused development increments.
-The published milestones introduce the native processing core and the backend
-foundation used by subsequent components.
+The published milestones introduce the native processing core, backend
+foundation, and customer identity API used by subsequent components.
 
 ## Published milestones
+
+Milestone 3a adds customer sign-up, email verification, login, password recovery,
+session management, and authenticator/recovery-code flows. A development mailbox
+command exposes queued verification links without an SMTP service. See
+[customer identity setup](docs/IDENTITY.md) for API startup and usage.
 
 Milestone 2 adds validated configuration, database migrations, password and token
 primitives, identity/session models, tenant-access policies, and a health-only
@@ -19,7 +24,7 @@ Milestone 1 provides the native C++20 processing engine:
 - Bounded input processing and consistent invalid-input responses.
 - A reusable static library, a command-line worker, and CTest regression checks.
 
-Customer API routes and workers, web applications, billing adapters, and
+Project/job/file API routes and workers, web applications, billing adapters, and
 deployment configuration will be introduced in later increments. The database
 baseline includes model definitions for later domains so the existing migration
 chain remains consistent; it does not expose those features as APIs.
@@ -41,6 +46,22 @@ isolated tests:
 
 ```bash
 python -m pytest -c backend/pyproject.toml backend/foundation_tests -q
+```
+
+## Run the customer identity API
+
+After installing and migrating the backend as above:
+
+```bash
+python -m uvicorn entrypoints.identity_api.main:create_app --factory --host 127.0.0.1 --port 8000
+```
+
+This replaces the health-only process on port 8000. Identity endpoints are under
+`/api/console/v1/auth`. To view queued development messages and run the tests:
+
+```bash
+arc-identity mail --email developer@example.com
+python -m pytest -c backend/pyproject.toml backend/foundation_tests backend/identity_tests -q
 ```
 
 ## Build and test the native engine
@@ -79,8 +100,9 @@ backend/
   foundation/              Configuration, database, cryptography and errors
   database/                Schema registry and frozen migration history
   modules/                 Domain models and authorization policies
-  entrypoints/             Foundation migration CLI and health API
+  entrypoints/             Migration/mail CLIs, health and identity APIs
   foundation_tests/        Independent migration, security and access tests
+  identity_tests/          Customer identity and HTTP request checks
 native/
   include/arc/             Public native interfaces
   engines/validation/      JSON record and CSV validation
@@ -89,6 +111,7 @@ native/
   tests/                   Native regression checks
 docs/
   FOUNDATION.md            Backend setup and milestone boundaries
+  IDENTITY.md              Customer identity API and local verification
   ROADMAP.md               Planned delivery increments
 ```
 
