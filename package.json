@@ -1,0 +1,32 @@
+{
+  "name": "arc-platform",
+  "version": "0.3.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev:web": "npm run dev -w @arc/web",
+    "dev:portal": "npm run dev -w @arc/portal",
+    "dev:operator": "npm run dev -w @arc/operator",
+    "build": "npm run build -w @arc/web && npm run build -w @arc/portal && npm run build -w @arc/operator",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "node scripts/test_frontend_logic.cjs && node scripts/test_billing_uploads.cjs",
+    "test:e2e": "playwright test",
+    "check:release": "python scripts/release_check.py",
+    "check:source": "node scripts/check_frontend.cjs",
+    "dev": "python scripts/dev.py"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@playwright/test": "^1.57.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@types/node": "^22.19.7",
+    "@types/three": "^0.183.0"
+  }
+}
