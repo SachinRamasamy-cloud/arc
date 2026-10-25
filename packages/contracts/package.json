@@ -1,0 +1,9 @@
+{
+  "name": "@arc/contracts",
+  "version": "0.3.0",
+  "private": true,
+  "files": [
+    "product-openapi.json"
+  ],
+  "description": "Generated public API contract. Internal operator routes are not included."
+}
