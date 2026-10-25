@@ -1,0 +1,25 @@
+name: Native engine
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ make libboost-json-dev
+      - name: Configure release build
+        run: cmake -S native -B native/build -DCMAKE_BUILD_TYPE=Release
+      - name: Build native targets
+        run: cmake --build native/build --parallel 2
+      - name: Run native regression tests
+        run: ctest --test-dir native/build --output-on-failure
+      - name: Check worker version
+        run: native/build/arc-engine --version
