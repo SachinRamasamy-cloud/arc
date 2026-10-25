@@ -1,0 +1,11 @@
+.env
+.local
+.git
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.next
+**/out
+**/dist
+native/build
+artifacts

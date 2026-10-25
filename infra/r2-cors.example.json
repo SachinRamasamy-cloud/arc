@@ -1,0 +1,9 @@
+[
+  {
+    "AllowedOrigins": ["https://portal.example.invalid"],
+    "AllowedMethods": ["PUT", "GET", "HEAD"],
+    "AllowedHeaders": ["Content-Type"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 600
+  }
+]

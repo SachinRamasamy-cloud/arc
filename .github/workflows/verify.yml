@@ -1,0 +1,36 @@
+name: Validate modular architecture
+on:
+  push:
+  pull_request:
+jobs:
+  backend-and-native:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Native dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ libboost-json-dev
+      - name: Install Python dependencies
+        run: python -m pip install -e './backend[test]'
+      - name: Compile native engine
+        run: cmake -S native -B native/build -DCMAKE_BUILD_TYPE=Release && cmake --build native/build -j2
+      - name: Native tests
+        run: ctest --test-dir native/build --output-on-failure
+      - name: Architecture, backend, billing and integration tests
+        run: python scripts/verify_architecture.py && pytest -q backend/tests backend/modules
+  frontend:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Syntax, business logic and SDK checks
+        run: npm run check:source && npm test
+      - name: Typecheck and build all three frontend applications
+        run: npm run typecheck && npm run build

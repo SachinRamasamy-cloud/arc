@@ -1,0 +1,92 @@
+# Local PostgreSQL/Redis qualification stack. Bindings are loopback-only.
+# Run from repository root: docker compose --env-file .env -f infra/compose.yaml up --build
+name: arc-local
+x-backend: &backend
+  build:
+    context: ..
+    dockerfile: infra/Dockerfile.backend
+  environment: &env
+    ARC_ENV: development
+    ARC_SECRET_KEY: ${ARC_SECRET_KEY:?Run bootstrap.py first}
+    ARC_ENCRYPTION_KEY: ${ARC_ENCRYPTION_KEY:?Run bootstrap.py first}
+    ARC_DATABASE_URL: ${ARC_REMOTE_DATABASE_URL:-postgresql+psycopg://arc:${ARC_LOCAL_DB_PASSWORD:?Set a random local DB password}@postgres:5432/arc}
+    ARC_REDIS_URL: redis://redis:6379/0
+    ARC_STORAGE_MODE: local
+    ARC_STORAGE_DIR: /app/.local/objects
+    ARC_NATIVE_PATH: /app/native/build/arc-engine
+    ARC_MAIL_MODE: local
+    ARC_STRIPE_SECRET_KEY: ${ARC_STRIPE_SECRET_KEY:-}
+    ARC_STRIPE_WEBHOOK_SECRET: ${ARC_STRIPE_WEBHOOK_SECRET:-}
+    ARC_STRIPE_CREDIT_PRICE_ID: ${ARC_STRIPE_CREDIT_PRICE_ID:-}
+    ARC_STRIPE_PLAN_PRICE_ID: ${ARC_STRIPE_PLAN_PRICE_ID:-}
+    ARC_LIVE_ENABLED: ${ARC_LIVE_ENABLED:-false}
+    ARC_PRICING_APPROVED: ${ARC_PRICING_APPROVED:-false}
+    ARC_API_ORIGIN: http://127.0.0.1:8000
+    ARC_PORTAL_ORIGIN: http://127.0.0.1:5173
+    ARC_OPERATOR_ORIGIN: http://127.0.0.1:5174
+    ARC_SITE_ORIGIN: http://127.0.0.1:3000
+  volumes:
+    - arc-local-data:/app/.local
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  pids_limit: 64
+services:
+  postgres:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_DB: arc
+      POSTGRES_USER: arc
+      POSTGRES_PASSWORD: ${ARC_LOCAL_DB_PASSWORD:?Set a random local DB password}
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U arc -d arc"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    volumes: [arc-postgres:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:5432:5432"]
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, "yes"]
+    volumes: [arc-redis:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    # Redis is reachable only on the private compose network.
+  migrate:
+    <<: *backend
+    command: [arc, migrate]
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    <<: *backend
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  event-api:
+    <<: *backend
+    command: [uvicorn, entrypoints.events_api.main:events, --factory, --host, 0.0.0.0, --port, "8000", --no-access-log]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  data-api:
+    <<: *backend
+    command: [uvicorn, entrypoints.application:data, --factory, --host, 0.0.0.0, --port, "8000", --no-access-log]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  worker:
+    <<: *backend
+    command: [arc, worker]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+volumes:
+  arc-postgres:
+  arc-redis:
+  arc-local-data:
+networks:
+  default:
+    enable_ipv6: true

@@ -1,0 +1,71 @@
+{
+  "release": "0.3.0-modular-development",
+  "gates": {
+    "frontend_dependency_lock_review": {
+      "status": "blocked",
+      "evidence": "Package installation unavailable in build environment; no generated lockfile."
+    },
+    "frontend_build_types_browser": {
+      "status": "blocked",
+      "evidence": "59 source files passed syntax/local-import checks; 21 logic tests passed. No npm lockfile/dependency-backed TypeScript/React/Three.js/Playwright qualification."
+    },
+    "postgres_redis_concurrency": {
+      "status": "blocked",
+      "evidence": "Local SQLite concurrency tested; production databases not available."
+    },
+    "r2_live_upload_and_retention": {
+      "status": "blocked",
+      "evidence": "Local direct/multipart flow and boto3 contract/signing tests pass; no real private-bucket CORS/multipart/lifecycle qualification."
+    },
+    "stripe_staging_reconciliation": {
+      "status": "blocked",
+      "evidence": "Signed event, price, retry and bounded reconciliation contract tests pass; no real Stripe Checkout/webhook/account lifecycle qualification."
+    },
+    "tenant_rls_policies": {
+      "status": "blocked",
+      "evidence": "Application tenant checks exist; database RLS policy migration not implemented."
+    },
+    "worker_os_sandbox": {
+      "status": "blocked",
+      "evidence": "Subprocess limits implemented; no qualified seccomp/network/filesystem isolation."
+    },
+    "load_fairness_and_recovery": {
+      "status": "blocked",
+      "evidence": "Functional queue recovery tested; FIFO polling and no production load benchmark."
+    },
+    "independent_security_review": {
+      "status": "blocked",
+      "evidence": "Regression suite is not an external penetration test."
+    },
+    "smtp_deliverability": {
+      "status": "blocked",
+      "evidence": "Local encrypted outbox exists; live provider delivery not verified."
+    },
+    "backup_restore_and_deletion": {
+      "status": "blocked",
+      "evidence": "Restore drill and automated end-to-end deletion workflow required."
+    },
+    "pricing_legal_approval": {
+      "status": "blocked",
+      "evidence": "Sandbox pricing fixture and draft legal content, not approved commercial terms."
+    }
+  },
+  "local_verified": {
+    "backend": {
+      "status": "passed",
+      "count": 158,
+      "artifact": "artifacts/backend-full-tests.txt",
+      "execution": "Three disjoint pytest groups; all pass."
+    },
+    "client_logic": {
+      "status": "passed",
+      "count": 21,
+      "artifact": "artifacts/frontend-logic-tests.txt"
+    },
+    "http_native": {
+      "status": "passed",
+      "checks": 16,
+      "artifact": "artifacts/http-smoke.json"
+    }
+  }
+}
